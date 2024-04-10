@@ -4,6 +4,7 @@ import { useState } from "react";
 const App = () => {
   const [page_no, setPageNo] = useState("");
   const [pdf_file, setPdfFile] = useState<File | null>(null);
+  const [extractedText, setExtractedText] = useState("");
 
   const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -13,23 +14,28 @@ const App = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("page", page_no);
-    formData.append("file", pdf_file);
+    try {
+      const formData = new FormData();
+      formData.append("page", page_no);
+      formData.append("file", pdf_file);
 
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    };
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
 
-    const res = await axios.post(
-      "http://localhost:8000/api/extract-text/",
-      formData,
-      config
-    );
+      const res = await axios.post(
+        "http://localhost:8000/api/extract-text/",
+        formData,
+        config
+      );
 
-    console.log("RESponse", res);
+      setExtractedText(res.data.result);
+    } catch (error) {
+      setExtractedText("");
+      console.error("Errorr extracting text", error);
+    }
   };
 
   return (
@@ -61,6 +67,15 @@ const App = () => {
             </button>
           </div>
         </form>
+
+        {extractedText && (
+          <div className="mt-8">
+            <h2 className="text-2xl border-b">Extracted Text:</h2>
+            <div>
+              <pre>{extractedText}</pre>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
