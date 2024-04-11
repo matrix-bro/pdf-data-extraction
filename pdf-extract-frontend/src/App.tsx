@@ -5,6 +5,7 @@ const App = () => {
   const [page_no, setPageNo] = useState("");
   const [pdf_file, setPdfFile] = useState<File | null>(null);
   const [extractedText, setExtractedText] = useState("");
+  const [error, setError] = useState("");
 
   const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,8 +33,10 @@ const App = () => {
       );
 
       setExtractedText(res.data.result);
-    } catch (error) {
+      setError("");
+    } catch (error: any) {
       setExtractedText("");
+      setError(error.response.data.message);
       console.error("Errorr extracting text", error);
     }
   };
@@ -67,6 +70,12 @@ const App = () => {
             </button>
           </div>
         </form>
+
+        {error && (
+          <div className="bg-red-300 mt-5 inline-block py-2 px-4 rounded-md">
+            {error}
+          </div>
+        )}
 
         {extractedText && (
           <div className="mt-8">
